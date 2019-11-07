@@ -1,0 +1,40 @@
+@startuml
+
+title Fund project
+autonumber
+
+actor Customer
+participant Contract
+participant Bank
+actor Merchant
+actor Synergy
+
+Customer->Contract ++: i'll give you 100€ for coffee
+return reference
+Customer->Bank ++:transfer 100€ to Merchant
+
+Bank-->Customer --:transfer completed
+Merchant->Contract ++: retrieve pending transcation
+return transaction
+
+loop transaction is pending
+    Merchant->Bank ++: check if transfer is done
+    return transfer status
+
+    alt transfer was made
+        Merchant->Contract: give 100 points
+        return ok
+    end
+    ...10 minutes later...
+end
+
+Customer->Contract ++: Check my points
+return points
+
+alt points != 100
+    Customer -> Synergy: Dispute transaction
+    Synergy -> Merchant ++: Notify to check the transaction
+    return reason
+end
+
+@enduml

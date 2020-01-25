@@ -6,7 +6,7 @@ contract("Project", (accounts) => {
     let project;
 
     before(async () => {
-        project = await Project.deployed();
+        project = await Project.new(accounts[0], 0, 0, 0, 0, 0, true);
     })
 
     describe('Project Contract Behavior', function () {
@@ -16,19 +16,44 @@ contract("Project", (accounts) => {
                 assert.equal(initialized, 0);
             })
 
-            it('returns true', async function () {
+            it('returns beneficiery', async function () {
                 const raiseBy = await project.raiseBy();
                 assert.equal(raiseBy, accounts[0]);
             })
 
             it('returns 0', async function () {
-                const totalBalance = await project.totalBalance();
-                assert.equal(totalBalance, 0);
+                const result = await project.minimunAmount();
+                assert.equal(result, 0);
             })
 
             it('returns 0', async function () {
-                const completeAt = await project.completeAt();
-                assert.equal(completeAt, 0);
+                const result = await project.maximunAmount();
+                assert.equal(result, 0);
+            })
+
+            it('returns 0', async function () {
+                const result = await project.maxBackerAmount();
+                assert.equal(result, 0);
+            })
+
+            it('returns 0', async function () {
+                const result = await project.totalBalance();
+                assert.equal(result, 0);
+            })
+
+            it('returns 0', async function () {
+                const result = await project.completeAt();
+                assert.equal(result, 0);
+            })
+
+            it('returns 0', async function () {
+                const result = await project.raisingEndsAt();
+                assert.equal(result, 0);
+            })
+
+            it('returns true', async function () {
+                const result = await project.useToken();
+                assert.equal(result, true);
             })
         });  
         

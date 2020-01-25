@@ -1,59 +1,47 @@
-pragma solidity >=0.5.4 <0.6.0;
+pragma solidity >=0.5.8 <0.6.0;
 
+import './ProjectStorage.sol';
+import './Ownable.sol';
 import '@openzeppelin/contracts/math/SafeMath.sol';
 
-contract Project {
+contract Project  is ProjectStorage, Ownable{
+
     using SafeMath for uint256;
 
-    enum TransactionState {
-        Pending,
-        Completed,
-        Failed
+    modifier isPending(uint256 _index) {
+         require(backedTransaction[_index].state == TransactionState.Pending, "Transaction isn't pending");
+        _;
     }
-
-    struct BackedTransaction {
-        address contributor;
-        uint amount;
-        TransactionState state;
-    }
-
-    struct Transaction {
-        address contributor;
-        uint amount;
-    }
-
-    // State variables
-    address public raiseBy;
-    uint public minimunAmount;
-    uint256 public totalBalance;
-    uint public completeAt;
-
-    BackedTransaction[] public backedTransaction;
-    Transaction[] public transaction;
-
-    mapping(address => uint256) public tokens; // I own you equal price of products
 
     constructor (
         address projectRaiseBy,
         uint projectMinimunAmount,
-        uint projectCompleteAt
+        uint projectMaximunAmount,
+        uint projectMaxBackerAmount,
+        uint projectCompleteAt,
+        uint projectRaisingEndsAt,
+        bool projectUseToken
     ) public {
-        raiseBy = projectRaiseBy;
         minimunAmount = projectMinimunAmount;
+        maximunAmount = projectMaximunAmount;
+        maxBackerAmount = projectMaxBackerAmount;
+        raiseBy = projectRaiseBy;
         completeAt = projectCompleteAt;
+        raisingEndsAt = projectRaisingEndsAt;
+        useToken = projectUseToken;
     }
 
-    function promiseToFund(address _contributor, uint _amount) public returns(uint256){
+    function promiseToFund(address _contributor, uint _amount) public returns(bytes32){
         backedTransaction.push(BackedTransaction({
             contributor: _contributor,
             amount: _amount,
             state: TransactionState.Pending
         }));
 
-        // checkIfFundingCompleteOrExpired();
+        return keccak256('loyalty_score_timespan');
     }
 
-    function fundReceived(uint256 _index) public {
+    function fundReceived(uint256 _index) public isPending(_index) {
         BackedTransaction memory trx = backedTransaction[_index];
 
         backedTransaction[_index].state = TransactionState.Completed;

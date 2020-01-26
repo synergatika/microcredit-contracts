@@ -13,25 +13,44 @@ contract Project  is ProjectStorage, Ownable{
         _;
     }
 
+    modifier isStarted() {
+       require(startedAt == 0 || block.timestamp > startedAt, "Project is not started yet");
+       _;
+    }
+
+    modifier isValid() {
+       require(expiredAt == 0 || block.timestamp < expiredAt, "Expired project");
+       _;
+    }
+
+    modifier isAvailable() {
+        require(availableAt == 0 || block.timestamp < availableAt, "Fund are not available yet");
+       _;
+    }
+
     constructor (
         address projectRaiseBy,
         uint projectMinimunAmount,
         uint projectMaximunAmount,
         uint projectMaxBackerAmount,
-        uint projectCompleteAt,
-        uint projectRaisingEndsAt,
+        uint projectExpiredAt,
+        uint projectAvailableAt,
+        uint projectStartedAt,
         bool projectUseToken
     ) public {
         minimunAmount = projectMinimunAmount;
         maximunAmount = projectMaximunAmount;
         maxBackerAmount = projectMaxBackerAmount;
         raiseBy = projectRaiseBy;
-        completeAt = projectCompleteAt;
-        raisingEndsAt = projectRaisingEndsAt;
+        expiredAt = projectExpiredAt;
+        availableAt = projectAvailableAt;
+        startedAt = projectStartedAt;
         useToken = projectUseToken;
     }
 
-    function promiseToFund(address _contributor, uint _amount) public returns(bytes32){
+    function promiseToFund(address _contributor, uint _amount) public isAvailable returns(bytes32){
+        require(maxBackerAmount == 0 || tokens[_contributor] + _amount <= maxBackerAmount, "User exceed his/her maximun backing amount");
+
         backedTransaction.push(BackedTransaction({
             contributor: _contributor,
             amount: _amount,
@@ -50,6 +69,12 @@ contract Project  is ProjectStorage, Ownable{
     }
 
     function spend(address _contributor, uint256 _price) public {
+        require(useToken == false, "Tokens aren't deductable");
         tokens[_contributor] = tokens[_contributor].sub(_price);
+    }
+
+    function spend(address _contributor) public {
+        require(useToken == true, "Tokens are deductable");
+
     }
 }

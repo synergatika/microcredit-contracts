@@ -6,7 +6,7 @@ contract("Project", (accounts) => {
     let project;
 
     before(async () => {
-        project = await Project.new(accounts[0], 0, 0, 0, 0, 0, true);
+        project = await Project.new(accounts[0], 0, 0, 1000, 0, 0, 0, true);
     })
 
     describe('Project Contract Behavior', function () {
@@ -31,9 +31,9 @@ contract("Project", (accounts) => {
                 assert.equal(result, 0);
             })
 
-            it('returns 0', async function () {
+            it('returns 1000', async function () {
                 const result = await project.maxBackerAmount();
-                assert.equal(result, 0);
+                assert.equal(result, 1000);
             })
 
             it('returns 0', async function () {
@@ -42,12 +42,17 @@ contract("Project", (accounts) => {
             })
 
             it('returns 0', async function () {
-                const result = await project.completeAt();
+                const result = await project.expiredAt();
                 assert.equal(result, 0);
             })
 
             it('returns 0', async function () {
-                const result = await project.raisingEndsAt();
+                const result = await project.startedAt();
+                assert.equal(result, 0);
+            })
+
+            it('returns 0', async function () {
+                const result = await project.availableAt();
                 assert.equal(result, 0);
             })
 
@@ -60,7 +65,7 @@ contract("Project", (accounts) => {
         describe('Fund', function () {
             it('success', async function () {
                 const result = await project.promiseToFund(accounts[1], 1000);
-                assert.equal('0x01', result.receipt.status, 'register member');
+                assert.equal('0x01', result.receipt.status, 'send funds');
             })
 
             it('returns 0', async function () {
@@ -81,6 +86,10 @@ contract("Project", (accounts) => {
             it('returns 1000', async function () {
                 const totalBalance = await project.tokens(accounts[1]);
                 assert.equal(totalBalance, 1000);
+            })
+
+            it('success', async function () {
+                await assertRevert(project.promiseToFund(accounts[1], 1000))
             })
         }); 
     });

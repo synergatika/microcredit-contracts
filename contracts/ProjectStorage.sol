@@ -24,7 +24,6 @@ contract ProjectStorage {
     }
 
     struct Backer {
-        uint tokens;
         address backerAddress;
     }
 
@@ -36,9 +35,11 @@ contract ProjectStorage {
 
     uint public maxBackerAmount;
 
-    uint public completeAt;
+    uint public expiredAt;
 
-    uint public raisingEndsAt;
+    uint public availableAt;
+
+    uint public startedAt;
 
     bool public useToken;
 

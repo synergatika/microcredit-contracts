@@ -75,7 +75,7 @@ contract("Project", (accounts) => {
 
             it('success', async function () {
                 const result = await project.fundReceived(0);
-                assert.equal('0x01', result.receipt.status, 'register member');
+                assert.equal('0x01', result.receipt.status, 'spend tokens');
             })
 
             it('returns 1000', async function () {
@@ -90,6 +90,21 @@ contract("Project", (accounts) => {
 
             it('success', async function () {
                 await assertRevert(project.promiseToFund(accounts[1], 1000))
+            })
+
+            it('success', async function () {
+                const result = await project.spend(accounts[1]);
+                assert.equal('0x01', result.receipt.status, 'spend tokens');
+            })
+
+            it('success', async function () {
+                await assertRevert(project.spend(accounts[0])) // accounts[0] balance is zero
+            })
+
+            it('get list transanction', async function () {
+                const transanction = await project.transaction(0);
+                assert.equal(transanction[0], accounts[1]);
+                assert.equal(transanction[1], 0);
             })
         }); 
     });

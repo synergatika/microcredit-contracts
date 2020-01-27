@@ -35,6 +35,8 @@ contract ProjectStorage {
 
     uint public maxBackerAmount;
 
+    uint public minBackerAmount;
+
     uint public expiredAt;
 
     uint public availableAt;

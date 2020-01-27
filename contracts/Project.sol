@@ -14,7 +14,7 @@ contract Project  is ProjectStorage, Ownable{
     }
 
     modifier isStarted() {
-       require(startedAt == 0 || block.timestamp > startedAt, "Project is not started yet");
+       require(startedAt == 0 || block.timestamp > startedAt, "Not started project");
        _;
     }
 
@@ -24,7 +24,7 @@ contract Project  is ProjectStorage, Ownable{
     }
 
     modifier isAvailable() {
-        require(availableAt == 0 || block.timestamp < availableAt, "Fund are not available yet");
+        require(availableAt == 0 || block.timestamp < availableAt, "Not available project yet");
        _;
     }
 
@@ -48,8 +48,9 @@ contract Project  is ProjectStorage, Ownable{
         useToken = projectUseToken;
     }
 
-    function promiseToFund(address _contributor, uint _amount) public isAvailable returns(bytes32){
-        require(maxBackerAmount == 0 || tokens[_contributor] + _amount <= maxBackerAmount, "User exceed his/her maximun backing amount");
+    function promiseToFund(address _contributor, uint _amount) public isStarted isValid returns(bytes32){
+        require(maxBackerAmount == 0 || tokens[_contributor] + _amount <= maxBackerAmount,
+            "User exceeds his/her maximum allowed backing amount");
 
         backedTransaction.push(BackedTransaction({
             contributor: _contributor,
@@ -60,7 +61,7 @@ contract Project  is ProjectStorage, Ownable{
         return keccak256('loyalty_score_timespan');
     }
 
-    function fundReceived(uint256 _index) public isPending(_index) {
+    function fundReceived(uint256 _index) public isStarted isValid isPending(_index) {
         BackedTransaction memory trx = backedTransaction[_index];
 
         backedTransaction[_index].state = TransactionState.Completed;
@@ -70,11 +71,21 @@ contract Project  is ProjectStorage, Ownable{
 
     function spend(address _contributor, uint256 _price) public {
         require(useToken == false, "Tokens aren't deductable");
-        tokens[_contributor] = tokens[_contributor].sub(_price);
+        useTokens(_contributor, _price);
     }
 
     function spend(address _contributor) public {
         require(useToken == true, "Tokens are deductable");
+        require(minBackerAmount == 0 || tokens[_contributor] >= minBackerAmount, "You need more tokens");
+        useTokens(_contributor, 0);
+    }
 
+    function useTokens(address _contributor, uint256 _price) internal isStarted isAvailable isValid  {
+        tokens[_contributor] = tokens[_contributor].sub(_price);
+
+        transaction.push(Transaction({
+            contributor: _contributor,
+            amount: _price
+        }));
     }
 }

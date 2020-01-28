@@ -6,6 +6,8 @@ pragma solidity >=0.5.8 <0.6.0;
  */
 contract ProjectStorage {
 
+    event BackedTransactionEvent(address contributor, uint value, bytes32 ref);
+
     enum TransactionState {
         Pending,
         Completed,
@@ -15,6 +17,7 @@ contract ProjectStorage {
     struct BackedTransaction {
         address contributor;
         uint amount;
+        bytes32 ref;
         TransactionState state;
     }
 

@@ -4,6 +4,7 @@ const assertRevert = require('./helpers/assertRevert');
 contract("Project", (accounts) => {
     let options = {};
     let project;
+    let ref;
 
     before(async () => {
         project = await Project.new(accounts[0], 0, 0, 1000, 0, 0, 0, true);
@@ -63,9 +64,24 @@ contract("Project", (accounts) => {
         });  
         
         describe('Fund', function () {
+
+
             it('success', async function () {
                 const result = await project.promiseToFund(accounts[1], 1000);
+                const args = result.logs[0].args;
+                assert.equal(accounts[1], args.contributor);
+                assert.equal(1000, args.value);
+                ref = args.ref;
+                // assert.equal('0x52830dec972c72c48bdd960b1955b46076911d15dbe2cb98280c9a7f7608172f', args.ref);  Ref is random              
                 assert.equal('0x01', result.receipt.status, 'send funds');
+            })
+
+            it('check backed transaction', async function () {
+                const result = await project.backedTransaction(0);
+                assert.equal(accounts[1], result.contributor);
+                assert.equal(ref, result.ref);
+                assert.equal(1000, result.amount);
+                assert.equal(0, result.state);
             })
 
             it('returns 0', async function () {
@@ -75,7 +91,15 @@ contract("Project", (accounts) => {
 
             it('success', async function () {
                 const result = await project.fundReceived(0);
-                assert.equal('0x01', result.receipt.status, 'spend tokens');
+                assert.equal('0x01', result.receipt.status);
+            })
+
+            it('check backed transaction', async function () {
+                const result = await project.backedTransaction(0);
+                assert.equal(accounts[1], result.contributor);
+                assert.equal(ref, result.ref);
+                assert.equal(1000, result.amount);
+                assert.equal(1, result.state);
             })
 
             it('returns 1000', async function () {

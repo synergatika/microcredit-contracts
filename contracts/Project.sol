@@ -48,17 +48,21 @@ contract Project  is ProjectStorage, Ownable{
         useToken = projectUseToken;
     }
 
-    function promiseToFund(address _contributor, uint _amount) public isStarted isValid returns(bytes32){
+    function promiseToFund(address _contributor, uint _amount) public isStarted isValid returns(bytes32) {
         require(maxBackerAmount == 0 || tokens[_contributor] + _amount <= maxBackerAmount,
             "User exceeds his/her maximum allowed backing amount");
 
-        backedTransaction.push(BackedTransaction({
+        BackedTransaction memory trx = BackedTransaction({
             contributor: _contributor,
             amount: _amount,
-            state: TransactionState.Pending
-        }));
+            state: TransactionState.Pending,
+            ref: keccak256(abi.encodePacked(_contributor, block.number))
+        });
 
-        return keccak256('loyalty_score_timespan');
+        backedTransaction.push(trx);
+
+        emit BackedTransactionEvent(_contributor, _amount, trx.ref);
+        return trx.ref;
     }
 
     function fundReceived(uint256 _index) public isStarted isValid isPending(_index) {

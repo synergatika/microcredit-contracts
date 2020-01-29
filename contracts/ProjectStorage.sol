@@ -8,7 +8,7 @@ contract ProjectStorage {
 
     event BackedTransactionEvent(address contributor, uint amount, bytes32 ref);
 
-    event FundReceivedEvent(address contributor, uint amount;
+    event FundReceivedEvent(address contributor, uint amount);
 
     event TransactionEvent(address contributor, uint amount);
 

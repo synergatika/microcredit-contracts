@@ -71,6 +71,8 @@ contract Project  is ProjectStorage, Ownable{
         backedTransaction[_index].state = TransactionState.Completed;
         tokens[trx.contributor] = tokens[trx.contributor].add(trx.amount);
         totalBalance = totalBalance.add(trx.amount);
+
+        emit FundReceivedEvent(trx.contributor, trx.amount);
     }
 
     function spend(address _contributor, uint256 _price) public {
@@ -91,5 +93,7 @@ contract Project  is ProjectStorage, Ownable{
             contributor: _contributor,
             amount: _price
         }));
+
+        emit TransactionEvent(_contributor, _price);
     }
 }

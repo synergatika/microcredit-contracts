@@ -65,18 +65,17 @@ contract("Project", (accounts) => {
         
         describe('Fund', function () {
 
-
-            it('success', async function () {
+            it('promise to fund', async function () {
                 const result = await project.promiseToFund(accounts[1], 1000);
                 const args = result.logs[0].args;
                 assert.equal(accounts[1], args.contributor);
-                assert.equal(1000, args.value);
+                assert.equal(1000, args.amount);
                 ref = args.ref;
                 // assert.equal('0x52830dec972c72c48bdd960b1955b46076911d15dbe2cb98280c9a7f7608172f', args.ref);  Ref is random              
                 assert.equal('0x01', result.receipt.status, 'send funds');
             })
 
-            it('check backed transaction', async function () {
+            it('check new backed transaction', async function () {
                 const result = await project.backedTransaction(0);
                 assert.equal(accounts[1], result.contributor);
                 assert.equal(ref, result.ref);
@@ -84,17 +83,20 @@ contract("Project", (accounts) => {
                 assert.equal(0, result.state);
             })
 
-            it('returns 0', async function () {
+            it('check total balance', async function () {
                 const totalBalance = await project.tokens(accounts[1]);
                 assert.equal(totalBalance, 0);
             })
 
-            it('success', async function () {
+            it('receive funds', async function () {
                 const result = await project.fundReceived(0);
+                const args = result.logs[0].args;
+                assert.equal(accounts[1], args.contributor);
+                assert.equal(1000, args.amount);
                 assert.equal('0x01', result.receipt.status);
             })
 
-            it('check backed transaction', async function () {
+            it('check completed backed transaction', async function () {
                 const result = await project.backedTransaction(0);
                 assert.equal(accounts[1], result.contributor);
                 assert.equal(ref, result.ref);
@@ -110,6 +112,10 @@ contract("Project", (accounts) => {
             it('returns 1000', async function () {
                 const totalBalance = await project.tokens(accounts[1]);
                 assert.equal(totalBalance, 1000);
+            })
+
+            it('do not allow verification of already verified transaction', async function () {
+                await assertRevert(project.fundReceived(0));
             })
 
             it('success', async function () {

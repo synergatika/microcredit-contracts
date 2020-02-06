@@ -59,9 +59,10 @@ contract Project  is ProjectStorage, Ownable{
             ref: keccak256(abi.encodePacked(_contributor, block.number))
         });
 
+        uint _index = backedTransaction.length;
         backedTransaction.push(trx);
 
-        emit BackedTransactionEvent(_contributor, _amount, trx.ref);
+        emit BackedTransactionEvent(_contributor, _amount, _index, trx.ref);
         return trx.ref;
     }
 

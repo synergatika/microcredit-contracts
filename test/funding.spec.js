@@ -61,14 +61,15 @@ contract("Project", (accounts) => {
                 const result = await project.useToken();
                 assert.equal(result, true);
             })
-        });  
-        
+        });
+
         describe('Fund', function () {
 
             it('promise to fund', async function () {
                 const result = await project.promiseToFund(accounts[1], 1000);
                 const args = result.logs[0].args;
                 assert.equal(accounts[1], args.contributor);
+                assert.equal(0, args.index);
                 assert.equal(1000, args.amount);
                 ref = args.ref;
                 // assert.equal('0x52830dec972c72c48bdd960b1955b46076911d15dbe2cb98280c9a7f7608172f', args.ref);  Ref is random              
@@ -136,6 +137,6 @@ contract("Project", (accounts) => {
                 assert.equal(transanction[0], accounts[1]);
                 assert.equal(transanction[1], 0);
             })
-        }); 
+        });
     });
 });

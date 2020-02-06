@@ -14,18 +14,23 @@ contract Project  is ProjectStorage, Ownable{
     }
 
     modifier isStarted() {
-       require(startedAt == 0 || block.timestamp > startedAt, "Not started project");
-       _;
+        require(startedAt == 0 || block.timestamp > startedAt, "Not started project");
+        _;
     }
 
     modifier isValid() {
-       require(expiredAt == 0 || block.timestamp < expiredAt, "Expired project");
-       _;
+        require(expiredAt == 0 || block.timestamp < expiredAt, "Expired project");
+        _;
     }
 
     modifier isAvailable() {
         require(availableAt == 0 || block.timestamp < availableAt, "Not available project yet");
-       _;
+        _;
+    }
+
+    modifier hasAvailableBalance(address _contributor, uint256 _price) {
+        require(_price <= tokens[_contributor], "Ιnsufficient balance");
+        _;
     }
 
     constructor (
@@ -33,6 +38,7 @@ contract Project  is ProjectStorage, Ownable{
         uint projectMinimunAmount,
         uint projectMaximunAmount,
         uint projectMaxBackerAmount,
+        uint projectMinBackerAmount,
         uint projectExpiredAt,
         uint projectAvailableAt,
         uint projectStartedAt,
@@ -41,6 +47,7 @@ contract Project  is ProjectStorage, Ownable{
         minimunAmount = projectMinimunAmount;
         maximunAmount = projectMaximunAmount;
         maxBackerAmount = projectMaxBackerAmount;
+        minBackerAmount = projectMinBackerAmount;
         raiseBy = projectRaiseBy;
         expiredAt = projectExpiredAt;
         availableAt = projectAvailableAt;
@@ -87,7 +94,7 @@ contract Project  is ProjectStorage, Ownable{
         useTokens(_contributor, 0);
     }
 
-    function useTokens(address _contributor, uint256 _price) internal isStarted isAvailable isValid  {
+    function useTokens(address _contributor, uint256 _price) internal isStarted isAvailable isValid hasAvailableBalance(_contributor, _price) {
         tokens[_contributor] = tokens[_contributor].sub(_price);
 
         transaction.push(Transaction({
@@ -96,5 +103,13 @@ contract Project  is ProjectStorage, Ownable{
         }));
 
         emit TransactionEvent(_contributor, _price);
+    }
+
+    function backedTransactionLength() public view returns(uint256) {
+        return backedTransaction.length;
+    }
+
+    function transactionLength() public view returns(uint256) {
+        return transaction.length;
     }
 }

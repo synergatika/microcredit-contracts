@@ -7,7 +7,7 @@ contract("Project", (accounts) => {
     let ref;
 
     before(async () => {
-        project = await Project.new(accounts[0], 0, 0, 1000, 0, 0, 0, true);
+        project = await Project.new(accounts[0], 0, 0, 1000, 0, 0, 0, 0, true);
     })
 
     describe('Project Contract Behavior', function () {
@@ -84,6 +84,11 @@ contract("Project", (accounts) => {
                 assert.equal(0, result.state);
             })
 
+            it('check backed transaction length', async function () {
+                const result = await project.backedTransactionLength();
+                assert.equal(result, 1);
+            })
+
             it('check total balance', async function () {
                 const totalBalance = await project.tokens(accounts[1]);
                 assert.equal(totalBalance, 0);
@@ -136,6 +141,11 @@ contract("Project", (accounts) => {
                 const transanction = await project.transaction(0);
                 assert.equal(transanction[0], accounts[1]);
                 assert.equal(transanction[1], 0);
+            })
+
+            it('check transaction length', async function () {
+                const result = await project.transactionLength();
+                assert.equal(result, 1);
             })
         });
     });

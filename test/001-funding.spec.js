@@ -1,13 +1,12 @@
 const Project = artifacts.require("Project");
 const assertRevert = require('./helpers/assertRevert');
 
-contract("Project", (accounts) => {
-    let options = {};
+contract("Project 001", (accounts) => {
     let project;
     let ref;
 
     before(async () => {
-        project = await Project.new(accounts[0], 0, 0, 1000, 1000, 0, 0, 0, true);
+        project = await Project.new(accounts[0], 0, 0, 1000, 0, 0, 0, 0, true);
     })
 
     describe('Project Contract Behavior', function () {
@@ -139,7 +138,8 @@ contract("Project", (accounts) => {
             })
 
             it('success', async function () {
-                await assertRevert(project.spend(accounts[0])) // accounts[0] balance is zero
+                const result = await project.spend(accounts[0]);
+                assert.equal('0x01', result.receipt.status, 'spend tokens');
             })
 
             it('get list transanction', async function () {
@@ -150,7 +150,7 @@ contract("Project", (accounts) => {
 
             it('check transaction length', async function () {
                 const result = await project.transactionLength();
-                assert.equal(result, 1);
+                assert.equal(result, 2);
             })
         });
     });

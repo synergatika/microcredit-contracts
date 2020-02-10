@@ -9,7 +9,7 @@ npm install -g npm@latest
 npm install -g ganache-cli truffle
 npm install 
 
-ganache-cli --gasPrice 0 -l 0 -m "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat" > /dev/null &
+ganache-cli -m "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat" > /dev/null &
 TESTRPC_PID=$!
 trap "kill $TESTRPC_PID" EXIT INT TERM
 

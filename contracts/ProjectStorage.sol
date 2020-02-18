@@ -48,6 +48,8 @@ contract ProjectStorage {
 
     uint public availableAt;
 
+    uint public finishedAt;
+
     uint public startedAt;
 
     bool public useToken;

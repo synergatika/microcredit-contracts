@@ -18,13 +18,18 @@ contract Project  is ProjectStorage, Ownable{
         _;
     }
 
-    modifier isValid() {
+    modifier isExpired() {
         require(expiredAt == 0 || block.timestamp < expiredAt, "Expired project");
         _;
     }
 
     modifier isAvailable() {
         require(availableAt == 0 || block.timestamp < availableAt, "Not available project yet");
+        _;
+    }
+
+     modifier isFinished() {
+        require(finishedAt == 0 || block.timestamp < finishedAt, "Project is finished");
         _;
     }
 
@@ -57,7 +62,7 @@ contract Project  is ProjectStorage, Ownable{
         finishedAt = projectFinishedAt;
     }
 
-    function promiseToFund(address _contributor, uint _amount) public isStarted isValid returns(bytes32) {
+    function promiseToFund(address _contributor, uint _amount) public isStarted isExpired returns(bytes32) {
         require(maxBackerAmount == 0 || tokens[_contributor] + _amount <= maxBackerAmount,
             "User exceeds his/her maximum allowed backing amount");
 
@@ -75,7 +80,7 @@ contract Project  is ProjectStorage, Ownable{
         return trx.ref;
     }
 
-    function fundReceived(uint256 _index) public isStarted isValid isPending(_index) {
+    function fundReceived(uint256 _index) public isStarted isExpired isPending(_index) {
         BackedTransaction memory trx = backedTransaction[_index];
 
         backedTransaction[_index].state = TransactionState.Completed;
@@ -96,7 +101,7 @@ contract Project  is ProjectStorage, Ownable{
         useTokens(_contributor, 0);
     }
 
-    function useTokens(address _contributor, uint256 _price) internal isStarted isAvailable isValid hasAvailableBalance(_contributor, _price) {
+    function useTokens(address _contributor, uint256 _price) internal isStarted isAvailable isExpired hasAvailableBalance(_contributor, _price) {
         tokens[_contributor] = tokens[_contributor].sub(_price);
 
         transaction.push(Transaction({

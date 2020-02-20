@@ -11,14 +11,23 @@ contract("Project 002", (accounts) => {
     const projectAvailableAt = 0;
     const projectStartedAt = 0;
     const projectUseToken = false;
+    const projectFinishedAt = 0;
     let project;
     let ref;
 
     before(async () => {
         project = await Project.new(
-            projectRaiseBy, projectMinimunAmount, projectMaximunAmount, 
-            projectMaxBackerAmount, projectMinBackerAmount, projectExpiredAt, projectAvailableAt,
-            projectStartedAt, projectUseToken);
+            projectRaiseBy,
+            projectMinimunAmount,
+            projectMaximunAmount,
+            projectMaxBackerAmount,
+            projectMinBackerAmount,
+            projectExpiredAt,
+            projectAvailableAt,
+            projectStartedAt,
+            projectFinishedAt, 
+            projectUseToken
+        );
     })
 
     describe('Project Contract 002 Behavior', function () {

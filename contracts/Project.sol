@@ -42,6 +42,7 @@ contract Project  is ProjectStorage, Ownable{
         uint projectExpiredAt,
         uint projectAvailableAt,
         uint projectStartedAt,
+        uint projectFinishedAt,
         bool projectUseToken
     ) public {
         minimunAmount = projectMinimunAmount;
@@ -53,6 +54,7 @@ contract Project  is ProjectStorage, Ownable{
         availableAt = projectAvailableAt;
         startedAt = projectStartedAt;
         useToken = projectUseToken;
+        finishedAt = projectFinishedAt;
     }
 
     function promiseToFund(address _contributor, uint _amount) public isStarted isValid returns(bytes32) {

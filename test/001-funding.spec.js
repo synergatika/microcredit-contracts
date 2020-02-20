@@ -2,11 +2,32 @@ const Project = artifacts.require("Project");
 const assertRevert = require('./helpers/assertRevert');
 
 contract("Project 001", (accounts) => {
+    const projectRaiseBy = accounts[0];
+    const projectMinimunAmount = 0;
+    const projectMaximunAmount = 0;
+    const projectMaxBackerAmount = 1000;
+    const projectMinBackerAmount = 0;
+    const projectExpiredAt = 0;
+    const projectAvailableAt = 0;
+    const projectStartedAt = 0;
+    const projectFinishedAt = 0;
+    const projectUseToken = false;
     let project;
     let ref;
 
     before(async () => {
-        project = await Project.new(accounts[0], 0, 0, 1000, 0, 0, 0, 0, true);
+        project = await Project.new(
+            projectRaiseBy,
+            projectMinimunAmount,
+            projectMaximunAmount,
+            projectMaxBackerAmount,
+            projectMinBackerAmount,
+            projectExpiredAt,
+            projectAvailableAt,
+            projectStartedAt,
+            projectFinishedAt, 
+            projectUseToken
+        );
     })
 
     describe('Project Contract Behavior', function () {

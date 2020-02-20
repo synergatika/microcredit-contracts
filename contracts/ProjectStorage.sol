@@ -6,6 +6,14 @@ pragma solidity >=0.5.8 <0.6.0;
  */
 contract ProjectStorage {
 
+    enum ProjectState {
+        Draft,
+        Active,
+        Reedem,
+        Closed,
+        Completed
+    }
+
     event BackedTransactionEvent(address contributor, uint amount, uint index, bytes32 ref);
 
     event FundReceivedEvent(address contributor, uint amount);

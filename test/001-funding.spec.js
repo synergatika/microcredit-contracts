@@ -11,7 +11,7 @@ contract("Project 001", (accounts) => {
     const projectAvailableAt = 0;
     const projectStartedAt = 0;
     const projectFinishedAt = 0;
-    const projectUseToken = false;
+    const projectUseToken = true;
     let project;
     let ref;
 

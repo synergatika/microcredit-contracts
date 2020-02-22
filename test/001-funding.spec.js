@@ -1,34 +1,33 @@
 const Project = artifacts.require("Project");
 const assertRevert = require('./helpers/assertRevert');
+const checkBalance = require('./helpers/balance');
 
-contract("Project 001", (accounts) => {
+contract("Project 001",  async (accounts) => {
     const projectRaiseBy = accounts[0];
     const projectMinimunAmount = 0;
     const projectMaximunAmount = 0;
     const projectMaxBackerAmount = 1000;
-    const projectMinBackerAmount = 0;
+    const projectMinBackerAmount = 1000;
     const projectExpiredAt = 0;
     const projectAvailableAt = 0;
     const projectStartedAt = 0;
     const projectFinishedAt = 0;
     const projectUseToken = true;
-    let project;
-    let ref;
+    
+    let project = await Project.new(
+        projectRaiseBy,
+        projectMinimunAmount,
+        projectMaximunAmount,
+        projectMaxBackerAmount,
+        projectMinBackerAmount,
+        projectExpiredAt,
+        projectAvailableAt,
+        projectStartedAt,
+        projectFinishedAt, 
+        projectUseToken
+    );
 
-    before(async () => {
-        project = await Project.new(
-            projectRaiseBy,
-            projectMinimunAmount,
-            projectMaximunAmount,
-            projectMaxBackerAmount,
-            projectMinBackerAmount,
-            projectExpiredAt,
-            projectAvailableAt,
-            projectStartedAt,
-            projectFinishedAt, 
-            projectUseToken
-        );
-    })
+    let ref;
 
     describe('Project Contract Behavior', function () {
         describe('Contract is initialized', function () {
@@ -77,14 +76,18 @@ contract("Project 001", (accounts) => {
                 assert.equal(result, 0);
             })
 
+            it('returns 0', async function () {
+                const result = await project.finishedAt();
+                assert.equal(result, 0);
+            })
+
             it('returns true', async function () {
                 const result = await project.useToken();
                 assert.equal(result, true);
             })
         });
 
-        describe('Fund', function () {
-
+        describe('Fund (non-deductable)', function () {
             it('promise to fund', async function () {
                 const result = await project.promiseToFund(accounts[1], 1000);
                 const args = result.logs[0].args;
@@ -109,10 +112,7 @@ contract("Project 001", (accounts) => {
                 assert.equal(result, 1);
             })
 
-            it('check total balance', async function () {
-                const totalBalance = await project.tokens(accounts[1]);
-                assert.equal(totalBalance, 0);
-            })
+            checkBalance(project, accounts[1], 0, 0)
 
             it('receive funds', async function () {
                 const result = await project.fundReceived(0);
@@ -129,25 +129,37 @@ contract("Project 001", (accounts) => {
                 assert.equal(1000, result.amount);
                 assert.equal(1, result.state);
             })
-
-            it('returns 1000', async function () {
-                const totalBalance = await project.totalBalance();
-                assert.equal(totalBalance, 1000);
-            })
-
-            it('returns 1000', async function () {
-                const totalBalance = await project.tokens(accounts[1]);
-                assert.equal(totalBalance, 1000);
-            })
+            
+            checkBalance(project, accounts[1], 1000, 1000)
 
             it('do not allow verification of already verified transaction', async function () {
                 await assertRevert(project.fundReceived(0));
             })
 
+            it('revert funds', async function () {
+                const result = await project.revertFund(0);
+                const args = result.logs[0].args;
+                assert.equal(accounts[1], args.contributor);
+                assert.equal(1000, args.amount);
+                assert.equal('0x01', result.receipt.status);
+            })
+
+            checkBalance(project, accounts[1], 0, 0)
+            
+            it('recheck completed backed transaction', async function () {
+                const result = await project.fundReceived(0);
+                const args = result.logs[0].args;
+                assert.equal(accounts[1], args.contributor);
+                assert.equal(1000, args.amount);
+                assert.equal('0x01', result.receipt.status);
+            })
+            
             it('success', async function () {
                 await assertRevert(project.promiseToFund(accounts[1], 1000))
             })
 
+            checkBalance(project, accounts[1], 1000, 1000)
+            
             it('success', async function () {
                 const result = await project.spend(accounts[1]);
                 assert.equal('0x01', result.receipt.status, 'spend tokens');
@@ -158,9 +170,10 @@ contract("Project 001", (accounts) => {
                 assert.equal(result, 1);
             })
 
+            checkBalance(project, accounts[0], 1000, 0)
+
             it('success', async function () {
-                const result = await project.spend(accounts[0]);
-                assert.equal('0x01', result.receipt.status, 'spend tokens');
+                await assertRevert(project.spend(accounts[0]))
             })
 
             it('get list transanction', async function () {
@@ -171,7 +184,7 @@ contract("Project 001", (accounts) => {
 
             it('check transaction length', async function () {
                 const result = await project.transactionLength();
-                assert.equal(result, 2);
+                assert.equal(result, 1);
             })
         });
     });

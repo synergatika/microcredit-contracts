@@ -31,7 +31,7 @@ contract("Project 002", (accounts) => {
     })
 
     describe('Project Contract 002 Behavior', function () {
-        describe('Fund', function () {
+        describe('Fund (deductable)', function () {
             it('promise to fund', async function () {
                 const result = await project.promiseToFund(accounts[1], 1000);
                 const args = result.logs[0].args;

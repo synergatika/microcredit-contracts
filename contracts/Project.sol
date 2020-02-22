@@ -1,4 +1,4 @@
-pragma solidity >=0.5.8 <0.6.0;
+pragma solidity >=0.5.8 <0.6.1;
 
 import './ProjectStorage.sol';
 import './Ownable.sol';
@@ -8,33 +8,33 @@ contract Project  is ProjectStorage, Ownable{
 
     using SafeMath for uint256;
 
-    modifier isPending(uint256 _index) {
-         require(backedTransaction[_index].state == TransactionState.Pending, "Transaction isn't pending");
+     modifier isStarted() {
+        require(startedAt == 0 || block.timestamp >= startedAt,
+            "Not started project");
         _;
     }
 
-    modifier isStarted() {
-        require(startedAt == 0 || block.timestamp > startedAt, "Not started project");
-        _;
-    }
-
-    modifier isExpired() {
-        require(expiredAt == 0 || block.timestamp < expiredAt, "Expired project");
+    modifier isNotExpired() {
+        require(expiredAt == 0 || block.timestamp < expiredAt,
+            "Expired project");
         _;
     }
 
     modifier isAvailable() {
-        require(availableAt == 0 || block.timestamp < availableAt, "Not available project yet");
+        require(availableAt == 0 || block.timestamp >= availableAt,
+            "Not available project yet");
+        _;
+    }
+
+    modifier isNotAvailable() {
+        require(availableAt == 0 || block.timestamp < availableAt,
+            "Project is available yet");
         _;
     }
 
      modifier isFinished() {
-        require(finishedAt == 0 || block.timestamp < finishedAt, "Project is finished");
-        _;
-    }
-
-    modifier hasAvailableBalance(address _contributor, uint256 _price) {
-        require(_price <= tokens[_contributor], "Ιnsufficient balance");
+        require(finishedAt == 0 || block.timestamp >= finishedAt,
+            "Project is finished");
         _;
     }
 
@@ -62,7 +62,7 @@ contract Project  is ProjectStorage, Ownable{
         finishedAt = projectFinishedAt;
     }
 
-    function promiseToFund(address _contributor, uint _amount) public isStarted isExpired returns(bytes32) {
+    function promiseToFund(address _contributor, uint _amount) public isStarted isNotExpired returns(bytes32) {
         require(maxBackerAmount == 0 || tokens[_contributor] + _amount <= maxBackerAmount,
             "User exceeds his/her maximum allowed backing amount");
 
@@ -80,7 +80,21 @@ contract Project  is ProjectStorage, Ownable{
         return trx.ref;
     }
 
-    function fundReceived(uint256 _index) public isStarted isExpired isPending(_index) {
+    function revertFund(uint256 _index) public isStarted isNotAvailable {
+        require(backedTransaction[_index].state == TransactionState.Completed,
+            "Transaction isn't competed");
+        BackedTransaction memory trx = backedTransaction[_index];
+
+        backedTransaction[_index].state = TransactionState.Pending;
+        tokens[trx.contributor] = tokens[trx.contributor].sub(trx.amount);
+        totalBalance = totalBalance.sub(trx.amount);
+
+        emit FundRevertedEvent(trx.contributor, trx.amount);
+    }
+
+    function fundReceived(uint256 _index) public isStarted isNotExpired {
+        require(backedTransaction[_index].state == TransactionState.Pending,
+            "Transaction isn't pending");
         BackedTransaction memory trx = backedTransaction[_index];
 
         backedTransaction[_index].state = TransactionState.Completed;
@@ -97,11 +111,16 @@ contract Project  is ProjectStorage, Ownable{
 
     function spend(address _contributor) public {
         require(useToken == true, "Tokens are deductable");
-        require(minBackerAmount == 0 || tokens[_contributor] >= minBackerAmount, "You need more tokens");
+        require(minBackerAmount == 0 || tokens[_contributor] >= minBackerAmount,
+            "You need more tokens");
         useTokens(_contributor, 0);
     }
 
-    function useTokens(address _contributor, uint256 _price) internal isStarted isAvailable isExpired hasAvailableBalance(_contributor, _price) {
+    function useTokens(address _contributor, uint256 _price) internal
+        isStarted
+        isAvailable
+        isNotExpired {
+        require(_price <= tokens[_contributor], "Ιnsufficient balance");
         tokens[_contributor] = tokens[_contributor].sub(_price);
 
         transaction.push(Transaction({

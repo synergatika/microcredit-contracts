@@ -2,7 +2,7 @@ pragma solidity >=0.5.8 <0.6.1;
 
 import './ProjectStorage.sol';
 import './Ownable.sol';
-import '@openzeppelin/contracts/math/SafeMath.sol';
+import '../node_modules/@openzeppelin/contracts/math/SafeMath.sol';
 
 contract Project  is ProjectStorage, Ownable{
 
@@ -32,8 +32,8 @@ contract Project  is ProjectStorage, Ownable{
         _;
     }
 
-     modifier isFinished() {
-        require(finishedAt == 0 || block.timestamp >= finishedAt,
+     modifier isNotFinished() {
+        require(finishedAt == 0 || block.timestamp < finishedAt,
             "Project is finished");
         _;
     }
@@ -93,6 +93,7 @@ contract Project  is ProjectStorage, Ownable{
     }
 
     function fundReceived(uint256 _index) public isStarted isNotExpired {
+        require(_index < backedTransaction, "Index out of transactions list");
         require(backedTransaction[_index].state == TransactionState.Pending,
             "Transaction isn't pending");
         BackedTransaction memory trx = backedTransaction[_index];
@@ -119,7 +120,7 @@ contract Project  is ProjectStorage, Ownable{
     function useTokens(address _contributor, uint256 _price) internal
         isStarted
         isAvailable
-        isNotExpired {
+        isNotFinished {
         require(_price <= tokens[_contributor], "Ιnsufficient balance");
         tokens[_contributor] = tokens[_contributor].sub(_price);
 

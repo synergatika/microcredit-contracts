@@ -93,7 +93,7 @@ contract Project  is ProjectStorage, Ownable{
     }
 
     function fundReceived(uint256 _index) public isStarted isNotExpired {
-        require(_index < backedTransaction, "Index out of transactions list");
+        require(_index < backedTransaction.length, "Index out of transactions list");
         require(backedTransaction[_index].state == TransactionState.Pending,
             "Transaction isn't pending");
         BackedTransaction memory trx = backedTransaction[_index];

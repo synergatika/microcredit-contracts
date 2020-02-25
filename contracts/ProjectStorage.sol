@@ -5,31 +5,31 @@ pragma solidity >=0.5.8 <0.6.0;
  * @dev This contract holds all the necessary state variables to carry out the storage of any contract.
  */
 contract ProjectStorage {
+    event BackedTransactionEvent(
+        address contributor,
+        uint256 amount,
+        uint256 index,
+        bytes32 ref
+    );
 
-    event BackedTransactionEvent(address contributor, uint amount, uint index, bytes32 ref);
+    event FundReceivedEvent(address contributor, uint256 amount);
 
-    event FundReceivedEvent(address contributor, uint amount);
+    event FundRevertedEvent(address contributor, uint256 amount);
 
-    event FundRevertedEvent(address contributor, uint amount);
+    event TransactionEvent(address contributor, uint256 amount);
 
-    event TransactionEvent(address contributor, uint amount);
-
-    enum TransactionState {
-        Pending,
-        Completed,
-        Failed
-    }
+    enum TransactionState {Pending, Completed, Failed}
 
     struct BackedTransaction {
         address contributor;
-        uint amount;
+        uint256 amount;
         bytes32 ref;
         TransactionState state;
     }
 
     struct Transaction {
         address contributor;
-        uint amount;
+        uint256 amount;
     }
 
     struct Backer {
@@ -38,21 +38,13 @@ contract ProjectStorage {
 
     address public raiseBy;
 
-    uint public minimunAmount;
+    uint256 public minimunAmount;
 
-    uint public maximunAmount;
+    uint256 public maximunAmount;
 
-    uint public maxBackerAmount;
+    uint256 public maxBackerAmount;
 
-    uint public minBackerAmount;
-
-    uint public expiredAt;
-
-    uint public availableAt;
-
-    uint public finishedAt;
-
-    uint public startedAt;
+    uint256 public minBackerAmount;
 
     bool public useToken;
 

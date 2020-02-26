@@ -16,10 +16,15 @@ module.exports = {
   },
   networks: {
     development: {
-      host: "localhost",
-      port: 8545,
+      host: "192.168.88.246",
+      // port: 8545,
+      // gasPrice: 0,
+      // network_id: "*" // Match any network id
+      port: 22000, // was 8545
+      network_id: "*", // Match any network id
       gasPrice: 0,
-      network_id: "*" // Match any network id
+      gas: 10000000,
+      type: "quorum" // needed for Truffle to support Quorum
     },
     production: {
       host: "95.216.92.152",

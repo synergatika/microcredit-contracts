@@ -2,9 +2,10 @@ pragma solidity >=0.5.8 <0.6.1;
 
 import "./ProjectStorage.sol";
 import "./Ownable.sol";
+import "./ProjectTimeLocked.sol";
 import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
 
-contract Project is ProjectStorage, Ownable {
+contract Project is ProjectStorage, Ownable, ProjectTimeLocked {
     using SafeMath for uint256;
 
     constructor(
@@ -25,10 +26,10 @@ contract Project is ProjectStorage, Ownable {
         minBackerAmount = projectMinBackerAmount;
         raiseBy = projectRaiseBy;
 
-        startedAt = block.timestamp + projectStartedAt;
-        availableAt = block.timestamp + projectAvailableAt;
-        expiredAt = block.timestamp + projectExpiredAt;
-        finishedAt = block.timestamp + projectFinishedAt;
+        startedAt = projectStartedAt * 1 seconds;
+        availableAt = projectAvailableAt * 1 seconds;
+        expiredAt = projectExpiredAt * 1 seconds;
+        finishedAt = projectFinishedAt * 1 seconds;
 
         useToken = projectUseToken;
         addressStorage[keccak256("owner")] = msg.sender;

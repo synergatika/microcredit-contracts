@@ -24,10 +24,10 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/synaphea/contracts#readme",
   "devDependencies": {
-    "ganache-cli": "6.7.0",
-    "solc": "0.5.11",
-    "solhint": "2.2.0",
-    "solium": "1.2.5",
+    "ganache-cli": "^6.7.0",
+    "solc": "^0.5.11",
+    "solhint": "^2.2.0",
+    "solium": "^1.2.5",
     "truffle": "5.0.37"
   },
   "dependencies": {

@@ -36,7 +36,7 @@
     "elliptic": ">=6.5.3",
     "eth-gas-reporter": "0.2.11",
     "eth-sig-util": "1.4.2",
-    "lodash": ">=4.17.19",
+    "lodash": ">=4.17.21",
     "mem": "6.1.1",
     "minimist": "1.2.5",
     "truffle-hdwallet-provider": "1.0.17",

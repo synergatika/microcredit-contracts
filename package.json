@@ -38,7 +38,7 @@
     "eth-sig-util": "1.4.2",
     "lodash": ">=4.17.19",
     "mem": "6.1.1",
-    "minimist": "1.2.5",
+    "minimist": "1.2.6",
     "truffle-hdwallet-provider": "1.0.17",
     "web3-eth": "1.2.11",
     "winston": "3.3.3",
